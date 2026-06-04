@@ -1,39 +1,33 @@
-// Claude-inspired color palette for Endpoint Proxy
-// Light theme: Warm beige/cream tones
-// Dark theme: Deep charcoal/brown tones
+// Teal accent palette for 9Router dashboard
 
 export const COLORS = {
-  // Primary - Warm Coral/Terracotta (Claude-like)
   primary: {
-    DEFAULT: "#D97757",
-    hover: "#C56243",
-    light: "#E8A58C",
-    dark: "#B0664D",
+    DEFAULT: "#14B8A6",
+    hover: "#0D9488",
+    light: "#5EEAD4",
+    dark: "#0F766E",
   },
 
-  // Light theme backgrounds
   light: {
-    bg: "#FBF9F6",
-    bgAlt: "#F5F1ED",
+    bg: "#F6FAFA",
+    bgAlt: "#EFF6F5",
     surface: "#FFFFFF",
-    sidebar: "rgba(246, 246, 246, 0.8)",
+    sidebar: "rgba(236, 254, 252, 0.88)",
     border: "rgba(0, 0, 0, 0.1)",
-    textMain: "#383733",
-    textMuted: "#75736E",
+    textMain: "#0f172a",
+    textMuted: "#64748b",
   },
 
-  // Dark theme backgrounds
   dark: {
-    bg: "#191918",
+    bg: "#1a1a1a",
     bgAlt: "#1F1F1E",
-    surface: "#242423",
-    sidebar: "rgba(30, 30, 30, 0.8)",
+    surface: "#262626",
+    sidebar: "rgba(24, 32, 31, 0.92)",
     border: "rgba(255, 255, 255, 0.1)",
     textMain: "#ECEBE8",
-    textMuted: "#9E9D99",
+    textMuted: "#9ca3af",
   },
 
-  // Status colors
   status: {
     success: "#22C55E",
     successLight: "#DCFCE7",
@@ -50,7 +44,6 @@ export const COLORS = {
   },
 };
 
-// CSS Variables mapping for Tailwind
 export const CSS_VARIABLES = {
   light: {
     "--color-primary": COLORS.primary.DEFAULT,
@@ -64,8 +57,8 @@ export const CSS_VARIABLES = {
     "--color-text-muted": COLORS.light.textMuted,
   },
   dark: {
-    "--color-primary": COLORS.primary.DEFAULT,
-    "--color-primary-hover": COLORS.primary.hover,
+    "--color-primary": COLORS.primary.light,
+    "--color-primary-hover": COLORS.primary.DEFAULT,
     "--color-bg": COLORS.dark.bg,
     "--color-bg-alt": COLORS.dark.bgAlt,
     "--color-surface": COLORS.dark.surface,

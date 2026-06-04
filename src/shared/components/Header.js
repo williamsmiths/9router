@@ -7,7 +7,6 @@ import PropTypes from "prop-types";
 import ProviderIcon from "@/shared/components/ProviderIcon";
 import HeaderMenu from "@/shared/components/HeaderMenu";
 import ThemeToggle from "@/shared/components/ThemeToggle";
-import DonateModal from "@/shared/components/DonateModal";
 import { useHeaderSearchStore } from "@/store/headerSearchStore";
 import { OAUTH_PROVIDERS, APIKEY_PROVIDERS } from "@/shared/constants/config";
 import { MEDIA_PROVIDER_KINDS, AI_PROVIDERS } from "@/shared/constants/providers";
@@ -82,54 +81,11 @@ const getPageInfo = (pathname) => {
       icon: "layers",
       breadcrumbs: [],
     };
-  if (pathname.includes("/usage"))
-    return {
-      title: "Usage & Analytics",
-      description:
-        "Monitor your API usage, token consumption, and request logs",
-      icon: "bar_chart",
-      breadcrumbs: [],
-    };
   if (pathname.includes("/auth-files"))
     return {
       title: "Auth Files",
       description: "Map provider credentials stored in the local database",
       icon: "vpn_key",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/quota"))
-    return {
-      title: "Quota Tracker",
-      description: "Track and manage your API quota limits",
-      icon: "data_usage",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/mitm"))
-    return {
-      title: "MITM Proxy",
-      description: "Intercept CLI tool traffic and route through 9Router",
-      icon: "security",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/cli-tools"))
-    return {
-      title: "CLI Tools",
-      description: "Configure CLI tools",
-      icon: "terminal",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/proxy-pools"))
-    return {
-      title: "Proxy Pools",
-      description: "Manage your proxy pool configurations",
-      icon: "lan",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/skills"))
-    return {
-      title: "Agent Skills",
-      description: "Copy a link and paste to your AI to use 9Router — no install needed",
-      icon: "extension",
       breadcrumbs: [],
     };
   if (pathname.includes("/endpoint"))
@@ -144,13 +100,6 @@ const getPageInfo = (pathname) => {
       title: "Settings",
       description: "Manage your preferences",
       icon: "settings",
-      breadcrumbs: [],
-    };
-  if (pathname.includes("/translator"))
-    return {
-      title: "Translator",
-      description: "Debug translation flow between formats",
-      icon: "translate",
       breadcrumbs: [],
     };
   if (pathname.includes("/console-log"))
@@ -175,8 +124,6 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
   const [loginMethod, setLoginMethod] = useState("");
-  const [donateOpen, setDonateOpen] = useState(false);
-
   // Memoize page info to prevent unnecessary recalculations
   const pageInfo = useMemo(() => getPageInfo(pathname), [pathname]);
   const { title, description, icon, breadcrumbs } = pageInfo;
@@ -220,15 +167,16 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
   };
 
   return (
-    <header className="shrink-0 flex items-center justify-between gap-3 px-4 lg:px-8 pt-3 pb-2 border-b border-border-subtle bg-surface/60 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none z-20">
-      {/* Mobile menu button */}
-      <div className="flex items-center gap-3 lg:hidden shrink-0">
+    <header className="shrink-0 z-20 flex h-14 items-center justify-between gap-3 border-b border-border-subtle bg-surface/75 px-4 backdrop-blur-xl lg:px-8">
+      <div className="flex items-center gap-2 lg:hidden shrink-0">
         {showMenuButton && (
           <button
+            type="button"
             onClick={onMenuClick}
-            className="text-text-main hover:text-primary transition-colors"
+            className="flex size-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-2 hover:text-text-main"
+            aria-label="Open menu"
           >
-            <span className="material-symbols-outlined">menu</span>
+            <span className="material-symbols-outlined text-[22px]">menu</span>
           </button>
         )}
       </div>
@@ -265,7 +213,7 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
                         fallbackText={crumb.label.slice(0, 2).toUpperCase()}
                       />
                     )}
-                    <h1 className="text-base lg:text-2xl font-semibold text-text-main tracking-tight truncate">
+                    <h1 className="truncate text-base font-semibold tracking-tight text-text-main lg:text-xl">
                       {translate(crumb.label)}
                     </h1>
                   </div>
@@ -274,19 +222,19 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
             ))}
           </div>
         ) : title ? (
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5">
               {icon && (
-                <span className="material-symbols-outlined text-primary text-xl lg:text-2xl">
-                  {icon}
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary lg:size-9">
+                  <span className="material-symbols-outlined text-[20px] lg:text-[22px]">{icon}</span>
                 </span>
               )}
-              <h1 className="text-base lg:text-2xl font-semibold tracking-tight truncate">
+              <h1 className="truncate text-base font-semibold tracking-tight text-text-main lg:text-xl">
                 {translate(title)}
               </h1>
             </div>
             {description && (
-              <p className="hidden lg:block text-sm text-text-muted truncate">
+              <p className="mt-0.5 hidden truncate pl-[42px] text-xs text-text-muted lg:block lg:pl-[46px] lg:text-sm">
                 {translate(description)}
               </p>
             )}
@@ -294,30 +242,22 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
         ) : null}
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex shrink-0 items-center gap-2">
         {displayName && loginMethod === "OIDC" && (
-          <div className="hidden sm:flex items-center max-w-[220px] px-3 py-1.5 rounded-full border border-border bg-surface/70 text-xs text-text-muted truncate">
-            <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary">person</span>
+          <div className="hidden max-w-[200px] items-center gap-2 truncate rounded-full border border-border-subtle bg-surface/80 px-3 py-1.5 text-xs text-text-muted sm:flex lg:max-w-[240px]">
+            <span className="material-symbols-outlined shrink-0 text-[16px] text-primary">person</span>
             <span className="truncate">{displayName}</span>
-            <span className="ml-2 shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <span className="shrink-0 rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
               OIDC
             </span>
           </div>
         )}
-        <HeaderSearch />
-        <button
-          onClick={() => setDonateOpen(true)}
-          className="flex items-center gap-1.5 px-3 h-8 rounded-lg border border-pink-500/30 bg-pink-500/10 text-pink-600 dark:text-pink-400 hover:bg-pink-500/20 transition-colors text-sm font-medium"
-          aria-label="Donate"
-        >
-          <span className="material-symbols-outlined text-[18px]">volunteer_activism</span>
-          <span className="hidden sm:inline">Donate</span>
-        </button>
-        <ThemeToggle />
-        <HeaderMenu onLogout={handleLogout} />
+        <div className="header-toolbar">
+          <HeaderSearch />
+          <ThemeToggle variant="compact" />
+          <HeaderMenu onLogout={handleLogout} />
+        </div>
       </div>
-      <DonateModal isOpen={donateOpen} onClose={() => setDonateOpen(false)} />
     </header>
   );
 }
@@ -340,7 +280,7 @@ function HeaderSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="w-full h-8 pl-7 pr-7 rounded-lg border border-border bg-surface/60 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+        className="h-8 w-full rounded-lg border-0 bg-transparent pl-7 pr-7 text-sm focus:outline-none focus:ring-0"
       />
       {query && (
         <button

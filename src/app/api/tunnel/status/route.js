@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
-import { getTunnelStatus, getTailscaleStatus, getDownloadStatus } from "@/lib/tunnel";
 
+/** Lite build: tunnel removed — stub for stale clients / old Docker UI cache */
 export async function GET() {
-  try {
-    const [tunnel, tailscale] = await Promise.all([getTunnelStatus(), getTailscaleStatus()]);
-    const download = getDownloadStatus();
-    return NextResponse.json({ tunnel, tailscale, download });
-  } catch (error) {
-    console.error("Tunnel status error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  return NextResponse.json({
+    tunnel: {
+      enabled: false,
+      settingsEnabled: false,
+      tunnelUrl: "",
+      publicUrl: "",
+    },
+    tailscale: {
+      enabled: false,
+      settingsEnabled: false,
+      tunnelUrl: "",
+    },
+    download: { downloading: false, progress: 0 },
+  });
 }

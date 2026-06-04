@@ -37,6 +37,30 @@ const nextConfig = {
     config.watchOptions = { ...config.watchOptions, ignored: /[\\/](logs|\.next|gitbook|cli)[\\/]/ };
     return config;
   },
+  async redirects() {
+    const removed = [
+      "usage",
+      "quota",
+      "mitm",
+      "cli-tools",
+      "translator",
+      "proxy-pools",
+      "skills",
+      "basic-chat",
+    ];
+    return removed.flatMap((segment) => [
+      {
+        source: `/dashboard/${segment}`,
+        destination: "/dashboard/endpoint",
+        permanent: false,
+      },
+      {
+        source: `/dashboard/${segment}/:path*`,
+        destination: "/dashboard/endpoint",
+        permanent: false,
+      },
+    ]);
+  },
   async rewrites() {
     return [
       {

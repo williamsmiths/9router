@@ -12,6 +12,10 @@ export default function ThemeToggle({ className, variant = "default" }) {
       "text-text-muted hover:text-text-main",
       "hover:bg-surface-2 transition-colors"
     ),
+    compact: cn(
+      "flex size-8 items-center justify-center rounded-lg",
+      "text-text-muted transition-colors hover:bg-surface-2 hover:text-text-main"
+    ),
     card: cn(
       "flex items-center justify-center size-11 rounded-full",
       "bg-surface/60 hover:bg-surface",
@@ -31,7 +35,8 @@ export default function ThemeToggle({ className, variant = "default" }) {
     >
       <span
         className={cn(
-          "material-symbols-outlined text-[22px]",
+          "material-symbols-outlined",
+          variant === "compact" ? "text-[20px]" : "text-[22px]",
           variant === "card" && "transition-transform duration-300 group-hover:rotate-12"
         )}
       >
