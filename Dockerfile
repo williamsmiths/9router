@@ -7,13 +7,15 @@ FROM base AS builder
 
 RUN apk --no-cache upgrade && apk --no-cache add python3 make g++ linux-headers
 
-COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
-  npm ci
+RUN corepack enable
+
+COPY package.json yarn.lock ./
+RUN --mount=type=cache,target=/root/.yarn \
+  yarn install --frozen-lockfile
 
 COPY . ./
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN yarn build
 
 FROM ${NODE_IMAGE} AS runner
 WORKDIR /app
