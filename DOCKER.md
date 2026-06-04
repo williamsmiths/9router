@@ -87,18 +87,41 @@ docker run --rm -p 20128:20128 \
   9router
 ```
 
-## Publish (automatic via CI)
+## Publish to GHCR
 
-Push a git tag `v*` → GitHub Actions builds multi-platform (amd64+arm64) and pushes to:
-- `ghcr.io/decolua/9router:v{version}` + `:latest`
-- `decolua/9router:v{version}` + `:latest`
+### CI (GitHub Actions)
+
+Push tag `v*` or run workflow **Build and Push Docker Image** manually:
 
 ```bash
-# Use scripts/release.js (recommended)
-node scripts/release.js "Release title" "Notes"
-
-# Or manually
-git tag v0.4.x && git push origin v0.4.x
+git tag v0.4.66 && git push origin v0.4.66
 ```
 
-Workflow: `app/.github/workflows/docker-publish.yml`
+Image: `ghcr.io/<owner>/9router:<version>` and `:latest` (multi-platform amd64 + arm64).
+
+Workflow: `.github/workflows/docker-publish.yml`
+
+### Local: `yarn deploy`
+
+```bash
+cp .env.deploy.example .env.deploy
+# GHCR_TOKEN=ghp_...  (or: gh auth login — script uses `gh auth token`)
+
+yarn deploy          # tag = version in package.json
+yarn deploy -- latest
+```
+
+Builds multi-platform and pushes to `ghcr.io/<GHCR_OWNER>/9router`.
+
+### Pull from GHCR
+
+```bash
+docker pull ghcr.io/williamsmiths/9router:latest
+
+docker run -d \
+  -p 20128:20128 \
+  -v "$HOME/.9router:/app/data" \
+  -e DATA_DIR=/app/data \
+  --name 9router \
+  ghcr.io/williamsmiths/9router:latest
+```
