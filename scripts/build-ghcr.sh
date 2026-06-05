@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Build and push 9router image to GitHub Container Registry (GHCR).
+# Manual local build & push to GHCR (optional — prefer `yarn deploy` for CI builds).
 #
 # Usage:
 #   export GHCR_OWNER=williamsmiths   # GitHub user/org
 #   export GHCR_TOKEN=<PAT with write:packages>
-#   ./scripts/build-ghcr.sh [tag]       # default: latest
+#   ./scripts/build-ghcr.sh [tag]     # default: latest
 #
 # Pull:
 #   docker pull ghcr.io/${GHCR_OWNER}/9router:latest
