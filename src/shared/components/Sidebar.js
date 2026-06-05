@@ -17,20 +17,23 @@ const VISIBLE_MEDIA_KINDS = ["embedding", "image", "tts", "stt"];
 const COMBINED_WEB_ITEM = { id: "web", label: "Web Fetch & Search", icon: "travel_explore", href: "/dashboard/media-providers/web" };
 
 const navItems = [
-  { href: "/dashboard/endpoint", label: "Endpoint", icon: "api" },
-  { href: "/dashboard/providers", label: "Providers", icon: "dns" },
-  { href: "/dashboard/combos", label: "Combos", icon: "layers" },
-  { href: "/dashboard/usage", label: "Usage", icon: "bar_chart" },
-  { href: "/dashboard/quota", label: "Quota Tracker", icon: "data_usage" },
+  { href: "/dashboard/quota", label: "Quota Tracker", icon: "data_usage", desc: "Track API quota limits" },
+  { href: "/dashboard/providers", label: "Providers", icon: "dns", desc: "Manage AI provider connections" },
+  { href: "/dashboard/combos", label: "Combos", icon: "layers", desc: "Model combos with fallback" },
+  { href: "/dashboard/usage", label: "Usage", icon: "bar_chart", desc: "Usage & analytics" },
 ];
 
 const debugItems = [
-  { href: "/dashboard/console-log", label: "Console Log", icon: "terminal" },
+  { href: "/dashboard/endpoint", label: "Endpoint", icon: "api", desc: "API endpoint configuration" },
+  { href: "/dashboard/console-log", label: "Console Log", icon: "terminal", desc: "Live server console output" },
 ];
+
+const settingsItem = { href: "/dashboard/profile", label: "Settings", icon: "settings", desc: "Manage your preferences" };
 
 export default function Sidebar({ onClose }) {
   const pathname = usePathname();
   const [mediaOpen, setMediaOpen] = useState(false);
+  const [navQuery, setNavQuery] = useState("");
   const [showShutdownModal, setShowShutdownModal] = useState(false);
   const [isShuttingDown, setIsShuttingDown] = useState(false);
   const [isDisconnected, setIsDisconnected] = useState(false);
@@ -51,8 +54,8 @@ export default function Sidebar({ onClose }) {
   }, []);
 
   const isActive = (href) => {
-    if (href === "/dashboard/endpoint") {
-      return pathname === "/dashboard" || pathname.startsWith("/dashboard/endpoint");
+    if (href === "/dashboard/quota") {
+      return pathname === "/dashboard" || pathname.startsWith("/dashboard/quota");
     }
     return pathname.startsWith(href);
   };
@@ -101,6 +104,29 @@ export default function Sidebar({ onClose }) {
     setIsDisconnected(true);
   };
 
+  // Filter nav items by search query (label / description match)
+  const q = navQuery.trim().toLowerCase();
+  const matches = (item) =>
+    !q ||
+    item.label.toLowerCase().includes(q) ||
+    (item.desc && item.desc.toLowerCase().includes(q));
+
+  const filteredNav = navItems.filter(matches);
+  const filteredDebug = debugItems.filter(matches);
+  const filteredSettings = matches(settingsItem);
+  const mediaSubItems = [
+    ...MEDIA_PROVIDER_KINDS.filter((k) => VISIBLE_MEDIA_KINDS.includes(k.id)),
+    COMBINED_WEB_ITEM,
+  ];
+  const filteredMediaSubs = mediaSubItems.filter(
+    (k) => !q || k.label.toLowerCase().includes(q)
+  );
+  const mediaMatches = !q || q.includes("media") || filteredMediaSubs.length > 0;
+  const showSystemSection =
+    filteredDebug.length > 0 || filteredSettings || mediaMatches;
+  const noResults =
+    q && filteredNav.length === 0 && !showSystemSection;
+
   return (
     <>
       <aside className="flex w-[17.5rem] flex-col border-r border-border-subtle bg-vibrancy backdrop-blur-xl transition-colors duration-300 min-h-full">
@@ -145,13 +171,46 @@ export default function Sidebar({ onClose }) {
           )}
         </div>
 
+        {/* Quick search to filter menu */}
+        <div className="px-4 pb-2">
+          <div className="relative">
+            <span className="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-text-muted">
+              search
+            </span>
+            <input
+              type="text"
+              value={navQuery}
+              onChange={(e) => setNavQuery(e.target.value)}
+              placeholder="Search menu…"
+              aria-label="Search menu"
+              className="h-9 w-full rounded-lg border border-border-subtle bg-surface-2/60 pl-8 pr-7 text-[13px] text-text-main placeholder:text-text-muted/70 transition-colors focus:border-primary/40 focus:bg-surface focus:outline-none"
+            />
+            {navQuery && (
+              <button
+                type="button"
+                onClick={() => setNavQuery("")}
+                aria-label="Clear search"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-text-muted hover:text-text-main"
+              >
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Navigation */}
         <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto custom-scrollbar">
-          {navItems.map((item) => (
+          {filteredNav.length > 0 && (
+            <p className="px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted/70">
+              Core
+            </p>
+          )}
+          {filteredNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
+              title={item.desc}
               className={cn(
                 "nav-link group",
                 isActive(item.href) ? "nav-link-active" : "text-text-muted hover:bg-surface-2 hover:text-text-main"
@@ -169,13 +228,21 @@ export default function Sidebar({ onClose }) {
             </Link>
           ))}
 
+          {noResults && (
+            <div className="px-3 py-6 text-center text-[12px] text-text-muted">
+              No menu items match “{navQuery}”.
+            </div>
+          )}
+
           {/* System section */}
+          {showSystemSection && (
           <div className="pt-4 mt-3 border-t border-border-subtle space-y-0.5">
             <p className="px-3 pb-1.5 text-[10px] font-semibold text-text-muted/70 uppercase tracking-[0.14em]">
               System
             </p>
 
             {/* Media Providers accordion */}
+            {mediaMatches && (
             <button
               type="button"
               onClick={() => setMediaOpen((v) => !v)}
@@ -191,22 +258,23 @@ export default function Sidebar({ onClose }) {
               <span
                 className={cn(
                   "material-symbols-outlined text-[16px] text-text-muted transition-transform duration-200",
-                  mediaOpen && "rotate-180"
+                  (mediaOpen || q) && "rotate-180"
                 )}
               >
                 expand_more
               </span>
             </button>
-            {mediaOpen && (
+            )}
+            {mediaMatches && (mediaOpen || q) && (
               <div className="ml-3 pl-3 border-l border-border-subtle space-y-0.5 my-1">
-                {MEDIA_PROVIDER_KINDS.filter((k) => VISIBLE_MEDIA_KINDS.includes(k.id)).map((kind) => (
+                {filteredMediaSubs.map((kind) => (
                   <Link
                     key={kind.id}
-                    href={`/dashboard/media-providers/${kind.id}`}
+                    href={kind.href || `/dashboard/media-providers/${kind.id}`}
                     onClick={onClose}
                     className={cn(
                       "nav-link py-1.5 text-[12px]",
-                      pathname.startsWith(`/dashboard/media-providers/${kind.id}`)
+                      pathname.startsWith(kind.href || `/dashboard/media-providers/${kind.id}`)
                         ? "nav-link-active"
                         : "text-text-muted hover:bg-surface-2 hover:text-text-main"
                     )}
@@ -215,24 +283,10 @@ export default function Sidebar({ onClose }) {
                     <span>{kind.label}</span>
                   </Link>
                 ))}
-                <Link
-                  key={COMBINED_WEB_ITEM.id}
-                  href={COMBINED_WEB_ITEM.href}
-                  onClick={onClose}
-                  className={cn(
-                    "nav-link py-1.5 text-[12px]",
-                    pathname.startsWith(COMBINED_WEB_ITEM.href)
-                      ? "nav-link-active"
-                      : "text-text-muted hover:bg-surface-2 hover:text-text-main"
-                  )}
-                >
-                  <span className="material-symbols-outlined text-[16px]">{COMBINED_WEB_ITEM.icon}</span>
-                  <span>{COMBINED_WEB_ITEM.label}</span>
-                </Link>
               </div>
             )}
 
-            {debugItems.map((item) => (
+            {filteredDebug.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -254,9 +308,11 @@ export default function Sidebar({ onClose }) {
               </Link>
             ))}
 
+            {filteredSettings && (
             <Link
-              href="/dashboard/profile"
+              href={settingsItem.href}
               onClick={onClose}
+              title={settingsItem.desc}
               className={cn(
                 "nav-link group",
                 isActive("/dashboard/profile") ? "nav-link-active" : "text-text-muted hover:bg-surface-2 hover:text-text-main"
@@ -268,11 +324,13 @@ export default function Sidebar({ onClose }) {
                   isActive("/dashboard/profile") ? "fill-1" : "group-hover:text-primary transition-colors"
                 )}
               >
-                settings
+                {settingsItem.icon}
               </span>
-              <span>Settings</span>
+              <span>{settingsItem.label}</span>
             </Link>
+            )}
           </div>
+          )}
         </nav>
 
         <div className="p-4 border-t border-border-subtle">

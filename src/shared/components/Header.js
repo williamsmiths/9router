@@ -125,9 +125,9 @@ const getPageInfo = (pathname) => {
     };
   if (pathname === "/dashboard")
     return {
-      title: "Endpoint",
-      description: "API endpoint configuration",
-      icon: "api",
+      title: "Quota Tracker",
+      description: "Track and manage your API quota limits",
+      icon: "data_usage",
       breadcrumbs: [],
     };
   return { title: "", description: "", breadcrumbs: [] };
