@@ -39,8 +39,6 @@ const nextConfig = {
   },
   async redirects() {
     const removed = [
-      "usage",
-      "quota",
       "mitm",
       "cli-tools",
       "translator",
